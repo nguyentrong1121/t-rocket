@@ -23,7 +23,7 @@ if (cookieStr) {
 // ==========================================
 // 2. HÀM GỬI POST REQUEST LÊN GAS
 // ==========================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbw23UqRTak913nta2bcdboBVn4XvLQdPbo3FDOIJEvRT3BljIRew5yJwxvRciqcoKcC/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzenWBBF-hoT1CyIxTJSX38-2rk_tjA63FQ23CyZTxV-v9rnshZV4UMi6IeNOMtmk5T/exec";
 let body = $response.body;
 
 function sendToGas(payload) {
