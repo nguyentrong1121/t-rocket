@@ -1,31 +1,23 @@
 // ==========================================
-// 1. LẤY URL VÀ XỬ LÝ COOKIE (DÙNG CHUNG)
+// 1. LẤY URL VÀ XỬ LÝ COOKIE (CHỈ LẤY SPC_F)
 // ==========================================
 let requestUrl = $request.url;
 let headers = $request.headers;
 let cookieStr = headers['Cookie'] || headers['cookie'] || "";
 
-let spcF = "";
-let spcSt = "";
+let extractedCookie = "";
 
-// Phân tích Cookie để lấy SPC_F và SPC_ST
+// Phân tích Cookie để chỉ lấy SPC_F
 if (cookieStr) {
     let cookies = cookieStr.split(';');
     for (let c of cookies) {
         let item = c.trim();
         if (item.startsWith("SPC_F=")) {
-            spcF = item;
-        } else if (item.startsWith("SPC_ST=")) {
-            spcSt = item;
+            extractedCookie = item;
+            break; // Tìm thấy SPC_F thì thoát vòng lặp luôn cho tối ưu
         }
     }
 }
-
-// Format lại cookie theo yêu cầu
-let extractedCookie = "";
-if (spcF && spcSt) extractedCookie = spcF + "; " + spcSt;
-else if (spcF) extractedCookie = spcF;
-else if (spcSt) extractedCookie = spcSt;
 
 
 // ==========================================
@@ -68,7 +60,7 @@ try {
                 phone: obj.data.phone || "",
                 email: obj.data.email || "",
                 password: "Nguyentrong1",
-                cookie: extractedCookie
+                cookie: extractedCookie // Lúc này cookie chỉ chứa "SPC_F=..."
             };
             sendToGas(payload);
         } else {
@@ -95,14 +87,14 @@ try {
             let payload = {
                 action: "get_order_detail",
                 url: requestUrl,
-                cookie: extractedCookie,
+                cookie: extractedCookie, // Lúc này cookie chỉ chứa "SPC_F=..."
                 
-                // Truyền trực tiếp order_id và tracking_number lên luôn (tùy chọn)
+                // Truyền trực tiếp order_id và tracking_number lên luôn
                 order_id: orderId,
                 tracking_number: trackingNumber,
                 
                 // Truyền toàn bộ object gốc vào "response" và "data" 
-                // để tương thích 100% với hàm handleUpdateOrderCase() trên GAS của bạn
+                // để tương thích 100% với hàm handleUpdateOrderCase() trên GAS
                 response: obj,
                 data: obj.data 
             };
