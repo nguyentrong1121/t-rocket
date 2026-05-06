@@ -31,7 +31,7 @@ else if (spcSt) extractedCookie = spcSt;
 // ==========================================
 // 2. HÀM GỬI POST REQUEST LÊN GAS
 // ==========================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyoIQHgpse0RdTtlpIYE_4DJ-kcXYEXpDhtuDrRmAI1pMH4PJV74x_auNUikXJP-C_n/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzvx21Nt5og1Ov0a73daLFkhTh5ZnuLXMB8aquI_9FcD9DUDmq7YqkaB82Ig506iShB/exec";
 let body = $response.body;
 
 function sendToGas(payload) {
