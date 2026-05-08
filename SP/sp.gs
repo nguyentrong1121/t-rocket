@@ -84,19 +84,25 @@ const ORDER_FIELDS = [
 function doPost(e) {
     try {
         if (!e || !e.postData || !e.postData.contents) {
-            return jsonResponse({ status: "error", message: "Payload rỗng" });
+            const response = jsonResponse({ status: "error", message: "Payload rỗng" });
+            logApi(e, "", "", "ERROR", JSON.stringify({ status: "error", message: "Payload rỗng" }));
+            return response;
         }
         const payload = JSON.parse(e.postData.contents);
 
         const ss = SpreadsheetApp.getActiveSpreadsheet();
         const sheet = ss.getSheetByName(SHEET_NAME);
         if (!sheet) {
-            return jsonResponse({ status: "error", message: `Không tìm thấy sheet: ${SHEET_NAME}` });
+            const response = jsonResponse({ status: "error", message: `Không tìm thấy sheet: ${SHEET_NAME}` });
+            logApi(e, payload.action || "", "", "ERROR", JSON.stringify({ status: "error", message: `Không tìm thấy sheet: ${SHEET_NAME}` }));
+            return response;
         }
 
         const headers = getColumnNames(sheet);
         if (headers.length === 0) {
-            return jsonResponse({ status: "error", message: "Sheet chưa có dòng tiêu đề." });
+            const response = jsonResponse({ status: "error", message: "Sheet chưa có dòng tiêu đề." });
+            logApi(e, payload.action || "", "", "ERROR", JSON.stringify({ status: "error", message: "Sheet chưa có dòng tiêu đề." }));
+            return response;
         }
 
         const requestUrl = payload.url || (e.parameter && e.parameter.url) || "";
@@ -112,18 +118,27 @@ function doPost(e) {
             actionName = "get_order_detail";
         }
 
+        let result;
         switch (actionName) {
             case "get_config":
-                return handleGetConfig(payload);
+                result = handleGetConfig(payload);
+                break;
             case "get_order_detail":
-                return handleUpdateOrderCase(sheet, headers, payload, requestUrl, e);
+                result = handleUpdateOrderCase(sheet, headers, payload, requestUrl, e);
+                break;
             case "add_new_user":
             default:
-                return handleAddNewCase(sheet, headers, payload);
+                result = handleAddNewCase(sheet, headers, payload);
+                break;
         }
 
+        logApi(e, actionName, requestUrl, result.status, JSON.stringify(result));
+        return jsonResponse(result);
+
     } catch (error) {
-        return jsonResponse({ status: "error", message: error.toString() });
+        const response = jsonResponse({ status: "error", message: error.toString() });
+        logApi(e, "", "", "ERROR", JSON.stringify({ status: "error", message: error.toString() }));
+        return response;
     }
 }
 
@@ -137,29 +152,29 @@ function doPost(e) {
 function handleGetConfig(payload) {
     const key = payload.key;
     if (!key) {
-        return jsonResponse({
+        return {
             status: "success",
             action: "GET_CONFIG",
             message: "Lấy toàn bộ config thành công.",
             data: getAllConfig()
-        });
+        };
     }
 
     const value = getConfigValue(key);
     if (value === null) {
-        return jsonResponse({
+        return {
             status: "error",
             code: "CONFIG_NOT_FOUND",
             message: `Không tìm thấy config với key: ${key}`
-        });
+        };
     }
 
-    return jsonResponse({
+    return {
         status: "success",
         action: "GET_CONFIG",
         message: `Lấy config '${key}' thành công.`,
         data: { key: key, value: value }
-    });
+    };
 }
 
 /**
@@ -208,10 +223,10 @@ function handleUpdateOrderCase(sheet, headers, payload, requestUrl, e) {
     const incomingSPCF = getCookieValue(incomingCookieStr, "SPC_F");
 
     if (!incomingSPCF) {
-        return jsonResponse({
+        return {
             status: "error",
             message: "Không tìm thấy giá trị SPC_F trong request cookie để thực hiện update."
-        });
+        };
     }
 
     // 4. Kiểm tra cột
@@ -220,10 +235,10 @@ function handleUpdateOrderCase(sheet, headers, payload, requestUrl, e) {
     const cookieColIndex = headers.indexOf(COOKIE_FIELD);
 
     if (orderIdColIndex === -1 || trackingColIndex === -1 || cookieColIndex === -1) {
-        return jsonResponse({
+        return {
             status: "error",
             message: `Sheet cần phải có các cột: '${ORDER_ID_FIELD}', '${TRACKING_FIELD}' và '${COOKIE_FIELD}'`
-        });
+        };
     }
 
     // 5. TÌM DÒNG DỰA TRÊN SPC_F COOKIE (Quét cột Cookie)
@@ -248,19 +263,19 @@ function handleUpdateOrderCase(sheet, headers, payload, requestUrl, e) {
             }
         }
 
-        return jsonResponse({
+        return {
             status: "success",
             action: "UPDATE",
             message: `Đã cập nhật order_id, tracking_number và thông tin bổ sung thành công cho dữ liệu có SPC_F: ${incomingSPCF}`
-        });
+        };
 
     } else {
         // KHÔNG TÌM THẤY SPC_F TRÊN SHEET -> Trả về lỗi theo yêu cầu
-        return jsonResponse({
+        return {
             status: "error",
             code: "COOKIE_NOT_FOUND",
             message: `Update thất bại: Không tìm thấy bản ghi nào có SPC_F '${incomingSPCF}' trên Sheet.`
-        });
+        };
     }
 }
 
@@ -270,21 +285,21 @@ function handleUpdateOrderCase(sheet, headers, payload, requestUrl, e) {
 function handleAddNewCase(sheet, headers, payload) {
     const usernameIndex = headers.indexOf(USERNAME_FIELD);
     if (usernameIndex === -1) {
-        return jsonResponse({ status: "error", message: `Không tìm thấy cột '${USERNAME_FIELD}' trên Sheet.` });
+        return { status: "error", message: `Không tìm thấy cột '${USERNAME_FIELD}' trên Sheet.` };
     }
 
     const username = payload[USERNAME_FIELD];
     if (!username) {
-        return jsonResponse({ status: "error", message: `Payload thiếu trường '${USERNAME_FIELD}' bắt buộc.` });
+        return { status: "error", message: `Payload thiếu trường '${USERNAME_FIELD}' bắt buộc.` };
     }
 
     const rowIndex = findRowIndexByValue(sheet, usernameIndex, username);
     if (rowIndex !== -1) {
-        return jsonResponse({
+        return {
             status: "error",
             code: "USERNAME_EXISTS",
             message: `Username '${username}' đã tồn tại trong hệ thống.`
-        });
+        };
     }
 
     const rowData = headers.map(header => {
@@ -293,12 +308,12 @@ function handleAddNewCase(sheet, headers, payload) {
 
     sheet.appendRow(rowData);
 
-    return jsonResponse({
+    return {
         status: "success",
         action: "ADD_NEW",
         message: "Lưu dữ liệu mới thành công.",
         data: payload
-    });
+    };
 }
 
 // ==========================================
@@ -354,6 +369,50 @@ function getCookieValue(cookieString, cookieName) {
     if (!cookieString) return "";
     const match = cookieString.match(new RegExp('(^|;\\s*)' + cookieName + '=([^;]*)'));
     return match ? match[2].trim() : "";
+}
+
+// ==========================================
+// LOG API (ghi log request/response vào sheet api_log)
+// ==========================================
+
+function logApi(e, action, requestUrl, status, response) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName('api_log');
+    if (!sheet) {
+        sheet = ss.insertSheet('api_log');
+        sheet.appendRow([
+            'timestamp',
+            'action',
+            'request_url',
+            'status',
+            'spc_f',
+            'request_body',
+            'response_body'
+        ]);
+    }
+
+    // Lấy SPC_F từ request nếu có
+    let spcF = "";
+    if (e && e.postData && e.postData.contents) {
+        try {
+            const payload = JSON.parse(e.postData.contents);
+            const cookieStr = (payload.cookie || "").toString().trim();
+            spcF = getCookieValue(cookieStr, "SPC_F");
+        } catch (err) { }
+    }
+
+    // Cắt ngắn response_body nếu quá dài (giới hạn 5000 ký tự)
+    const responseShort = response && response.length > 5000 ? response.substring(0, 5000) + "... (truncated)" : response;
+
+    sheet.appendRow([
+        new Date(),
+        action,
+        requestUrl,
+        status,
+        spcF,
+        e && e.postData ? e.postData.contents : "",
+        responseShort
+    ]);
 }
 
 function jsonResponse(responseData) {

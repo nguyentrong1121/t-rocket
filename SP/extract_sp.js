@@ -23,7 +23,7 @@ if (cookieStr) {
 // ==========================================
 // 2. HÀM GỬI POST REQUEST LÊN GAS
 // ==========================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzenWBBF-hoT1CyIxTJSX38-2rk_tjA63FQ23CyZTxV-v9rnshZV4UMi6IeNOMtmk5T/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxX8-0qdEPRUh-QYqU7eTI0bwH269j0QWmi5cQgDzOVSjOnf2RT_GjKXnUpHNVQjLoC/exec";
 let body = $response.body;
 
 function sendToGas(payload) {
@@ -33,7 +33,7 @@ function sendToGas(payload) {
         body: JSON.stringify(payload)
     };
 
-    $httpClient.post(req, function(error, response, data) {
+    $httpClient.post(req, function (error, response, data) {
         if (error) {
             console.log("Lỗi gửi dữ liệu lên GAS: " + error);
         } else {
@@ -66,8 +66,8 @@ try {
         } else {
             $done({ body });
         }
-    } 
-    
+    }
+
     // CASE 2: CẬP NHẬT ĐƠN HÀNG (LẤY TRACKING)
     else if (requestUrl.indexOf("get_order_detail") !== -1) {
         if (obj && obj.data) {
@@ -128,8 +128,8 @@ try {
         } else {
             $done({ body });
         }
-    } 
-    
+    }
+
     // CASE MẶC ĐỊNH KHÔNG KHỚP BỎ QUA
     else {
         $done({ body });
