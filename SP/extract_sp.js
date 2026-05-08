@@ -126,7 +126,7 @@ try {
                     itemName = obj.data.items[0].name || "";
                 }
                 if (obj.data.order_payment && obj.data.order_payment.total_price) {
-                    totalPrice = obj.data.order_payment.total_price / 100000;
+                    totalPrice = String(obj.data.order_payment.total_price / 100000);
                 }
             } catch (err) {
                 console.log("Lỗi parse thông tin đơn hàng: " + err);
