@@ -23,24 +23,52 @@ if (cookieStr) {
 // ==========================================
 // 2. HÀM GỬI POST REQUEST LÊN GAS
 // ==========================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxX8-0qdEPRUh-QYqU7eTI0bwH269j0QWmi5cQgDzOVSjOnf2RT_GjKXnUpHNVQjLoC/exec";
+const CONFIG_URL = "https://script.google.com/macros/s/AKfycbxgPgjFPnmYTkpDiawEADPstjmMr_k1XCT-2crUDebrr1AUMlJdBfqAfxsNnf1AMGUd/exec";
 let body = $response.body;
 
 function sendToGas(payload) {
-    let req = {
-        url: GAS_URL,
+    // Bước 1: Gọi API config để lấy GAS_URL mới nhất
+    let configReq = {
+        url: CONFIG_URL,
         header: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ action: "get_config", key: "GAS_URL" })
     };
 
-    $httpClient.post(req, function (error, response, data) {
-        if (error) {
-            console.log("Lỗi gửi dữ liệu lên GAS: " + error);
+    $httpClient.post(configReq, function (error, _response, data) {
+        let targetUrl = CONFIG_URL; // Fallback: nếu lỗi thì dùng URL mặc định
+
+        if (!error && data) {
+            try {
+                let configData = JSON.parse(data);
+                if (configData.status === "success" && configData.data && configData.data.value) {
+                    targetUrl = configData.data.value;
+                    console.log("Lấy GAS_URL từ config thành công: " + targetUrl);
+                } else {
+                    console.log("Config không có GAS_URL, dùng URL mặc định.");
+                }
+            } catch (e) {
+                console.log("Lỗi parse config response: " + e);
+            }
         } else {
-            console.log("Gửi GAS thành công: " + data);
+            console.log("Lỗi gọi config API: " + error);
         }
-        // Trả về body nguyên gốc để App không bị lỗi
-        $done({ body });
+
+        // Bước 2: Gửi payload thực tế lên GAS_URL (mới nhất hoặc fallback)
+        let req = {
+            url: targetUrl,
+            header: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        };
+
+        $httpClient.post(req, function (error2, _response2, data2) {
+            if (error2) {
+                console.log("Lỗi gửi dữ liệu lên GAS: " + error2);
+            } else {
+                console.log("Gửi GAS thành công: " + data2);
+            }
+            // Trả về body nguyên gốc để App không bị lỗi
+            $done({ body });
+        });
     });
 }
 
