@@ -4,94 +4,80 @@
     "header" : {
       "title" : {
         "tl" : false,
-        "text" : "odp_banner_to_receive_edd_range",
-        "attributes" : [
-          {
-            "name" : "EDD_min",
-            "value" : "1778131410",
-            "type" : 14
-          },
-          {
-            "name" : "EDD_max",
-            "value" : "1778553223",
-            "type" : 14
-          },
-          {
-            "name" : "EDD_max_date",
-            "value" : "1778553223",
-            "type" : 14
-          },
-          {
-            "name" : "EDD_max_time",
-            "value" : "1778553223",
-            "type" : 22
-          },
-          {
-            "name" : "EDD_range",
-            "value" : "1778131410,1778553223",
-            "type" : 18
-          }
-        ]
+        "text" : "odp_banner_completed_title"
       },
       "type" : 1
     },
     "items" : [
       {
         "quantity" : 1,
-        "model_id" : 261843395712,
-        "model_name" : "Màng Bọc Thực Phẩm",
+        "model_id" : 224232559963,
+        "model_name" : "XT ĐEN PEONY 1,4L",
         "category_id" : 0,
-        "item_id" : 24828361656,
+        "item_id" : 20938148921,
         "model_name_tr" : "",
         "ext_info" : {
           "is_main_item_exist" : false,
           "disable_redirection" : false,
-          "snapshot_id" : 285603001281
+          "snapshot_id" : 266599152522
         },
-        "price" : 100000000,
-        "image" : "sg-11134201-7rd4h-luviri32l0c00f",
-        "price_before_discount" : 1550000000,
+        "price" : 23250000000,
+        "image" : "vn-11134207-7ra0g-m9o0e3smj2wy66",
+        "price_before_discount" : 27900000000,
         "name_tr" : "",
-        "name" : "Túi 80 Màng Bọc Thực Phẩm Co Giãn Gấu Polupar Brown - Túi Gấu Nâu Màng Bọc Thực Phẩm"
+        "name" : "Nước giặt Hygiene Expert Wash đậm đặc thương hiệu Thái Lan siêu sạch siêu thơm hàng chính hãng"
       }
     ],
     "order_info_card" : {
-      "remark" : "",
-      "has_cancellation" : false,
-      "order_id" : 231742801227016,
       "spl_conversion_info" : {
 
       },
-      "complete_time" : 0,
-      "payment_time" : 0,
-      "list_type" : 8,
-      "order_sn" : "260506NKS6EF88",
-      "ship_time" : 1778079381,
+      "order_sn" : "2604282JVYD2W5",
+      "has_cancellation" : false,
       "payment_method" : {
         "tl" : true,
-        "text" : "Thanh toán khi nhận hàng"
+        "text" : "TK Ngân hàng liên kết ShopeePay"
       },
-      "order_time" : 1778043602
+      "payment_time" : 1777389828,
+      "order_id" : 231089019288485,
+      "remark" : "",
+      "order_time" : 1777389819,
+      "complete_time" : 1777867746,
+      "list_type" : 3,
+      "invoice" : {
+        "my_invoice" : {
+          "invoice_status" : 0,
+          "can_view_receipt" : false,
+          "request_popup_content" : {
+            "tl" : false,
+            "text" : ""
+          }
+        },
+        "can_use_invoice_v3" : false,
+        "invoice_shop_type" : 3,
+        "action" : 1
+      },
+      "ship_time" : 1777435339
     },
     "shop" : {
-      "shop_tag" : 3,
-      "username" : "giadungvm",
-      "user_id" : 1162862480,
-      "shop_id" : 1162533141,
-      "shop_name" : "Gia Dụng VM",
+      "shop_tag" : 2,
+      "username" : "thaiauth_store",
+      "user_id" : 720491005,
+      "shop_id" : 720471420,
+      "shop_name" : "Thaiauth Store",
       "livestream" : {
-        "title" : "Săn sale cả nhà ơi",
-        "session_id" : 35328118
+        "title" : "[CS]_Thaiauth Store_HỏiĐáp",
+        "session_id" : 35363022
       },
       "disable_redirection" : false
     },
     "buttons" : [
       {
-        "id" : 102,
+        "id" : 9,
         "type" : 2
       },
       {
-        "id" : 74,
+        "id" : 25,
         "type" : 3
       }
     ],
@@ -99,63 +85,39 @@
       "parcels" : [
         {
           "total_item_qty" : 1,
-          "ofg_id" : 231742798240677,
-          "forder_id" : "5954995795182209141",
-          "item_image" : "sg-11134201-7rd4h-luviri32l0c00f",
+          "ofg_id" : 231089019209687,
+          "forder_id" : "5949797953641988420",
+          "item_image" : "vn-11134207-7ra0g-m9o0e3smj2wy66",
           "logistics_id" : "0",
-          "tracking_number" : "SPXVN061725505695",
+          "tracking_number" : "SPXVN061607631594",
           "spu_item_image" : "",
           "title" : {
             "tl" : false,
-            "text" : "odp_multi_parcel_banner_edd_range",
+            "text" : "odp_multi_parcel_banner_delivered",
             "attributes" : [
               {
-                "name" : "EDD_min",
-                "value" : "1778131410",
+                "name" : "delivery_date",
+                "value" : "1777604530",
                 "type" : 14
-              },
-              {
-                "name" : "EDD_max",
-                "value" : "1778553223",
-                "type" : 14
-              },
-              {
-                "name" : "EDD_max_date",
-                "value" : "1778553223",
-                "type" : 14
-              },
-              {
-                "name" : "EDD_max_time",
-                "value" : "1778553223",
-                "type" : 22
-              },
-              {
-                "name" : "EDD_range",
-                "value" : "1778131410,1778553223",
-                "type" : 18
               }
             ]
           },
           "latest_tracking_info" : {
-            "ctime" : 1778079380,
-            "description" : "Đơn hàng đã đến kho "
+            "ctime" : 1777604530,
+            "description" : "Giao hàng thành công"
           },
           "fulfilment_channel_name" : "SPX Express",
           "msg" : {
             "tl" : true,
-            "text" : "Đơn hàng đã đến kho "
+            "text" : "Giao hàng thành công"
           },
-          "status" : 2
+          "status" : 5
         }
       ],
-      "is_cod_order" : true,
-      "ros_info" : {
-        "learn_more_url" : "https:\/\/shopee.vn\/m\/shopee-dong-kiem",
-        "is_eligible" : true
-      }
+      "is_cod_order" : false
     },
     "order_payment" : {
-      "total_price" : 100000000,
+      "total_price" : 3250000000,
       "currency" : "VND",
       "price_breakdown" : [
         {
@@ -164,7 +126,7 @@
             "text" : "label_odp_merchandise_subtotal"
           },
           "info_value" : {
-            "value" : "100000000",
+            "value" : "23250000000",
             "type" : 5
           }
         },
@@ -178,13 +140,13 @@
                 "type" : 1,
                 "label" : {
                   "tl" : false,
-                  "text" : "Nhanh - Shopee Xử Lý"
+                  "text" : "Nhanh"
                 }
               }
             ]
           },
           "info_value" : {
-            "value" : "1650000000",
+            "value" : "1960000000",
             "type" : 5
           }
         },
@@ -194,7 +156,7 @@
             "text" : "label_odp_shipping_discount_subtotal"
           },
           "info_value" : {
-            "value" : "-1650000000",
+            "value" : "-1960000000",
             "type" : 5
           },
           "info_tooltip" : {
@@ -204,13 +166,39 @@
             },
             "icon_type" : 1
           }
+        },
+        {
+          "info_label" : {
+            "tl" : false,
+            "text" : "label_odp_shopee_voucher_applied"
+          },
+          "info_value" : {
+            "value" : "-20000000000",
+            "type" : 5
+          }
         }
       ]
     },
     "support_center" : {
       "buttons" : [
         {
-          "id" : 74,
+          "id" : 25,
+          "extra" : {
+            "return_info" : {
+              "rr_due_date_info" : {
+                "tl" : false,
+                "text" : "odp_support_center_request_rr_subtext",
+                "attributes" : [
+                  {
+                    "name" : "rr_due_date",
+                    "value" : "1778900530",
+                    "type" : 14
+                  }
+                ]
+              },
+              "return_id" : 0
+            }
+          },
           "type" : 3
         },
         {
@@ -236,7 +224,7 @@
           "attributes" : [
             {
               "name" : "edt_max",
-              "value" : "1778561526",
+              "value" : "1777888593",
               "type" : 7
             },
             {
@@ -246,7 +234,7 @@
             },
             {
               "name" : "gdt",
-              "value" : "1778561526",
+              "value" : "1777888593",
               "type" : 7
             }
           ]
@@ -267,7 +255,7 @@
               "attributes" : [
                 {
                   "name" : "edt_max",
-                  "value" : "1778561526",
+                  "value" : "1777888593",
                   "type" : 7
                 },
                 {
@@ -277,7 +265,7 @@
                 },
                 {
                   "name" : "gdt",
-                  "value" : "1778561526",
+                  "value" : "1777888593",
                   "type" : 7
                 }
               ]

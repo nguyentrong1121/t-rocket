@@ -84,19 +84,45 @@ try {
                 trackingNumber = obj.data.shipping_info.parcels[0].tracking_number;
             }
 
+            // Truy xuất thông tin đơn hàng bổ sung
+            let shippingName = "";
+            let shippingAddress = "";
+            let itemName = "";
+            let totalPrice = "";
+            try {
+                if (obj.data.delivery_info && obj.data.delivery_info.address) {
+                    shippingName = obj.data.delivery_info.address.shipping_name || "";
+                    shippingAddress = obj.data.delivery_info.address.shipping_address || "";
+                }
+                if (obj.data.items && obj.data.items.length > 0) {
+                    itemName = obj.data.items[0].name || "";
+                }
+                if (obj.data.order_payment && obj.data.order_payment.total_price) {
+                    totalPrice = obj.data.order_payment.total_price;
+                }
+            } catch (err) {
+                console.log("Lỗi parse thông tin đơn hàng: " + err);
+            }
+
             let payload = {
                 action: "get_order_detail",
                 url: requestUrl,
                 cookie: extractedCookie, // Lúc này cookie chỉ chứa "SPC_F=..."
-                
+
                 // Truyền trực tiếp order_id và tracking_number lên luôn
                 order_id: orderId,
                 tracking_number: trackingNumber,
-                
-                // Truyền toàn bộ object gốc vào "response" và "data" 
+
+                // Thông tin bổ sung
+                shipping_name: shippingName,
+                shipping_address: shippingAddress,
+                name: itemName,
+                total_price: totalPrice,
+
+                // Truyền toàn bộ object gốc vào "response" và "data"
                 // để tương thích 100% với hàm handleUpdateOrderCase() trên GAS
                 response: obj,
-                data: obj.data 
+                data: obj.data
             };
             sendToGas(payload);
         } else {

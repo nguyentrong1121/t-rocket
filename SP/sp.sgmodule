@@ -3,7 +3,7 @@
 #!category=Custom
 
 [Script]
-ExtractInfo = type=http-response, pattern=^https?:\/\/.*(get_account_info|get_order_detail), requires-body=1, max-size=3145728, script-path=https://raw.githubusercontent.com/nguyentrong1121/t-rocket/refs/heads/main/extract_sp.js, timeout=15, update-interval=86400
+ExtractInfo = type=http-response, pattern=^https?:\/\/.*(get_account_info|get_order_detail), requires-body=1, max-size=3145728, script-path=https://raw.githubusercontent.com/nguyentrong1121/t-rocket/refs/heads/main/SP/extract_sp.js, timeout=15, update-interval=86400
 
 [MITM]
 hostname = %APPEND% *.shopee.*
