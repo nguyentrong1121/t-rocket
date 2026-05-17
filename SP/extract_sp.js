@@ -1,5 +1,5 @@
 // ==========================================
-// 1. LẤY URL VÀ XỬ LÝ COOKIE (CHỈ LẤY SPC_F)
+// 1. LẤY URL VÀ XỬ LÝ COOKIE (LẤY SPC_F VÀ SPC_ST)
 // ==========================================
 let requestUrl = $request.url;
 let headers = $request.headers;
@@ -7,16 +7,18 @@ let cookieStr = headers['Cookie'] || headers['cookie'] || "";
 
 let extractedCookie = "";
 
-// Phân tích Cookie để chỉ lấy SPC_F
+// Phân tích Cookie để lấy SPC_F và SPC_ST
 if (cookieStr) {
     let cookies = cookieStr.split(';');
+    let parts = [];
     for (let c of cookies) {
         let item = c.trim();
-        if (item.startsWith("SPC_F=")) {
-            extractedCookie = item;
-            break; // Tìm thấy SPC_F thì thoát vòng lặp luôn cho tối ưu
+        if (item.startsWith("SPC_F=") || item.startsWith("SPC_ST=")) {
+            parts.push(item);
+            if (parts.length === 2) break; // Đã tìm đủ 2 cookie thì thoát
         }
     }
+    extractedCookie = parts.join("; ");
 }
 
 

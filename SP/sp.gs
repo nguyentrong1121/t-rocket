@@ -13,7 +13,7 @@ const CONFIG_SHEET_NAME = 'config';
  * Chạy thủ công từ Apps Script Editor khi deploy phiên bản mới.
  */
 function setGAS_URL() {
-    const url = "https://script.google.com/macros/s/AKfycbxh4kSSnUfuDxPjxZFy6r61FZ5RNLqSddnaj2vRBidwxHJ0_vgiHc6HSSy91JsOLiRC/exec";
+    const url = "https://script.google.com/macros/s/AKfycbxZ4Xziwv1IWxAuD9-t8TznbiU36FijgsBEadsu_fkpupNdLQXEK_ucVKHysnpy0QWj/exec";
     setConfigValue('GAS_URL', url, 'Google Apps Script Web App URL');
 }
 
@@ -95,11 +95,22 @@ const ORDER_ID_FIELD = 'order_id';
 const TRACKING_FIELD = 'tracking_number';
 const COOKIE_FIELD = 'cookie';
 
-const ORDER_FIELDS = [
-    { key: 'shipping_name', field: 'shipping_name' },
-    { key: 'shipping_address', field: 'shipping_address' },
-    { key: 'name', field: 'name' },
-    { key: 'total_price', field: 'total_price' }
+const ORDER_FIELDS = [{
+    key: 'shipping_name',
+    field: 'shipping_name'
+},
+{
+    key: 'shipping_address',
+    field: 'shipping_address'
+},
+{
+    key: 'name',
+    field: 'name'
+},
+{
+    key: 'total_price',
+    field: 'total_price'
+}
 ];
 
 // ==========================================
@@ -410,17 +421,17 @@ function handleUpdateOrderCase(
             payload.data.order_info_card.order_id;
     }
 
-    orderId = orderId
-        ? orderId.toString().trim()
-        : "";
+    orderId = orderId ?
+        orderId.toString().trim() :
+        "";
 
     // ==========================================
     // TRACKING NUMBER
     // ==========================================
 
-    const dataObj = payload.response
-        ? payload.response
-        : payload;
+    const dataObj = payload.response ?
+        payload.response :
+        payload;
 
     let trackingNumber = "";
 
@@ -461,8 +472,7 @@ function handleUpdateOrderCase(
 
         return {
             status: "error",
-            message:
-                "Không tìm thấy giá trị SPC_F trong request cookie để thực hiện update."
+            message: "Không tìm thấy giá trị SPC_F trong request cookie để thực hiện update."
         };
     }
 
@@ -487,8 +497,7 @@ function handleUpdateOrderCase(
 
         return {
             status: "error",
-            message:
-                `Sheet cần phải có các cột: ` +
+            message: `Sheet cần phải có các cột: ` +
                 `'${ORDER_ID_FIELD}', ` +
                 `'${TRACKING_FIELD}' và ` +
                 `'${COOKIE_FIELD}'`
@@ -496,16 +505,23 @@ function handleUpdateOrderCase(
     }
 
     // ==========================================
-    // FIND ROW
+    // FIND ROW BY COOKIE AND ORDER_ID
     // ==========================================
 
-    const rowIndex = findRowIndexBySPCF(
+    // Tìm row có cùng cookie (SPC_F) VÀ order_id
+    // Vì 1 cookie có thể có nhiều đơn hàng
+    const rowIndex = findRowIndexByCookieAndOrderId(
         sheet,
         cookieColIndex,
-        incomingSPCF
+        orderIdColIndex,
+        incomingSPCF,
+        orderId
     );
 
     if (rowIndex !== -1) {
+
+        // Row đã tìm thấy dựa trên cookie + order_id
+        // Không cần validate lại vì đã match trong findRowIndexByCookieAndOrderId
 
         if (orderId) {
 
@@ -555,20 +571,40 @@ function handleUpdateOrderCase(
         return {
             status: "success",
             action: "UPDATE",
-            message:
-                `Đã cập nhật order_id, tracking_number ` +
+            message: `Đã cập nhật order_id, tracking_number ` +
                 `và thông tin bổ sung thành công ` +
                 `cho dữ liệu có SPC_F: ${incomingSPCF}`
         };
 
     } else {
 
+        // ==========================================
+        // KHÔNG TÌM THẤY COOKIE -> TẠO MỚI
+        // ==========================================
+
+        // Nếu không tìm thấy cookie và order_id, tạo row mới
+        // (1 tài khoản có thể có nhiều đơn hàng)
+
+        const newRowData = headers.map(header => {
+            if (header === COOKIE_FIELD) {
+                return incomingCookieStr;
+            } else if (header === ORDER_ID_FIELD && orderId) {
+                return "'" + orderId;
+            } else if (header === TRACKING_FIELD && trackingNumber) {
+                return trackingNumber;
+            } else if (payload[header]) {
+                return payload[header];
+            }
+            return "";
+        });
+
+        sheet.appendRow(newRowData);
+
         return {
-            status: "error",
-            code: "COOKIE_NOT_FOUND",
-            message:
-                `Update thất bại: Không tìm thấy bản ghi nào ` +
-                `có SPC_F '${incomingSPCF}' trên Sheet.`
+            status: "success",
+            action: "INSERT",
+            message: `Không tìm thấy SPC_F '${incomingSPCF}' trên Sheet. ` +
+                `Đã tạo bản ghi mới với order_id: ${orderId || 'N/A'}`
         };
     }
 }
@@ -589,8 +625,7 @@ function handleAddNewCase(
 
         return {
             status: "error",
-            message:
-                `Không tìm thấy cột '${USERNAME_FIELD}' trên Sheet.`
+            message: `Không tìm thấy cột '${USERNAME_FIELD}' trên Sheet.`
         };
     }
 
@@ -601,8 +636,7 @@ function handleAddNewCase(
 
         return {
             status: "error",
-            message:
-                `Payload thiếu trường '${USERNAME_FIELD}' bắt buộc.`
+            message: `Payload thiếu trường '${USERNAME_FIELD}' bắt buộc.`
         };
     }
 
@@ -617,16 +651,15 @@ function handleAddNewCase(
         return {
             status: "error",
             code: "USERNAME_EXISTS",
-            message:
-                `Username '${username}' đã tồn tại trong hệ thống.`
+            message: `Username '${username}' đã tồn tại trong hệ thống.`
         };
     }
 
     const rowData = headers.map(header => {
 
-        return payload.hasOwnProperty(header)
-            ? payload[header]
-            : "";
+        return payload.hasOwnProperty(header) ?
+            payload[header] :
+            "";
     });
 
     sheet.appendRow(rowData);
@@ -810,7 +843,63 @@ function findRowIndexByValue(
 }
 
 /**
- * Tìm dòng bằng SPC_F
+ * Tìm dòng bằng SPC_F và order_id
+ * Vì 1 cookie có thể có nhiều đơn hàng
+ */
+function findRowIndexByCookieAndOrderId(
+    sheet,
+    cookieColIndex,
+    orderIdColIndex,
+    targetSPCF,
+    targetOrderId
+) {
+
+    const lastRow = sheet.getLastRow();
+
+    if (lastRow <= 1) return -1;
+
+    const cookieColumn = cookieColIndex + 1;
+    const orderIdColumn = orderIdColIndex + 1;
+
+    const cookieData = sheet
+        .getRange(2, cookieColumn, lastRow - 1, 1)
+        .getValues();
+
+    const orderIdData = sheet
+        .getRange(2, orderIdColumn, lastRow - 1, 1)
+        .getValues();
+
+    for (let i = 0; i < cookieData.length; i++) {
+
+        const cellCookieStr = (cookieData[i][0] || "").toString();
+        const cellSPCF = getCookieValue(cellCookieStr, "SPC_F");
+
+        const cellOrderId = (orderIdData[i][0] || "")
+            .toString()
+            .trim()
+            .replace(/^'/, ''); // Remove leading apostrophe
+
+        // Khớp cả cookie VÀ order_id
+        if (cellSPCF && cellSPCF === targetSPCF) {
+            // Nếu có order_id từ request: khớp với row có cùng order_id HOẶC row chưa có order_id
+            if (targetOrderId) {
+                if (cellOrderId === targetOrderId || !cellOrderId) {
+                    return i + 2;
+                }
+            } else {
+                // Nếu không có order_id từ request, tìm row có cookie nhưng chưa có order_id
+                if (!cellOrderId) {
+                    return i + 2;
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Tìm dòng bằng SPC_F (legacy function - giữ lại để tương thích)
  */
 function findRowIndexBySPCF(
     sheet,
@@ -874,9 +963,9 @@ function getCookieValue(
         )
     );
 
-    return match
-        ? match[2].trim()
-        : "";
+    return match ?
+        match[2].trim() :
+        "";
 }
 
 // ==========================================
@@ -951,10 +1040,10 @@ function logApi(
 
     const responseShort =
         response &&
-            response.length > 5000
-            ? response.substring(0, 5000) +
-            "... (truncated)"
-            : response;
+            response.length > 5000 ?
+            response.substring(0, 5000) +
+            "... (truncated)" :
+            response;
 
     sheet.appendRow([
         new Date(),
@@ -962,9 +1051,9 @@ function logApi(
         requestUrl,
         status,
         spcF,
-        e && e.postData
-            ? e.postData.contents
-            : "",
+        e && e.postData ?
+            e.postData.contents :
+            "",
         responseShort
     ]);
 }
