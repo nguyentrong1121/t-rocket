@@ -21,7 +21,8 @@ function sendTelegramNotificationSP(text) {
     var apiUrl = TELEGRAM_CONFIG_SP.API_URL + '/sendMessage';
     var payload = {
         chat_id: TELEGRAM_CONFIG_SP.CHAT_ID,
-        text: text
+        text: text,
+        parse_mode: "HTML"
     };
 
     var options = {
@@ -76,7 +77,23 @@ function fetchSPXTrackingInfo(trackingNumber) {
         var json = JSON.parse(response.getContentText());
 
         if (json && json.retcode === 0 && json.data && json.data.sls_tracking_info && json.data.sls_tracking_info.records && json.data.sls_tracking_info.records.length > 0) {
-            return json.data.sls_tracking_info.records[0];
+            var records = json.data.sls_tracking_info.records;
+
+            // Tìm trong danh sách nếu có trạng thái Giao hàng thành công hoặc hủy thì ưu tiên lấy nó
+            for (var i = 0; i < records.length; i++) {
+                var desc = (records[i].description || "").toLowerCase();
+                var buyerDesc = (records[i].buyer_description || "").toLowerCase();
+                var trackingName = (records[i].tracking_name || "").toLowerCase();
+
+                if (desc.includes("giao hàng thành công") || desc.includes("hủy") ||
+                    buyerDesc.includes("giao hàng thành công") || buyerDesc.includes("hủy") ||
+                    trackingName.includes("giao hàng thành công") || trackingName.includes("hủy")) {
+                    return records[i];
+                }
+            }
+
+            // Nếu không có thì lấy phần tử đầu tiên (mới nhất)
+            return records[0];
         }
     } catch (e) {
         console.error("Lỗi khi lấy thông tin tracking SPX: " + e.toString());
@@ -146,7 +163,7 @@ function syncTrackingStatus() {
         // Fetch tracking info
         var record = fetchSPXTrackingInfo(trackingNumber);
         if (record) {
-            var newStatus = record.description || record.tracking_name || "";
+            var newStatus = (record.buyer_description || record.tracking_name || "").toString().trim();
             var actualTime = formatTimestamp(record.actual_time);
             var locationName = record.current_location && record.current_location.location_name ? record.current_location.location_name : "";
 
@@ -156,12 +173,18 @@ function syncTrackingStatus() {
                 sheet.getRange(i + 2, statusColIndex + 1).setValue(newStatus);
 
                 // Send telegram notification
-                var message = "📦 CẬP NHẬT TRẠNG THÁI VẬN ĐƠN\n";
-                message += "- Mã vận đơn: " + trackingNumber + "\n";
-                message += "- Tên khách hàng: " + name + "\n";
-                message += "- Trạng thái: " + newStatus + "\n";
-                if (actualTime) message += "- Thời gian: " + actualTime + "\n";
-                if (locationName) message += "- Vị trí: " + locationName;
+                let message = "<b>🔔 SPX Update:</b> " + newStatus + "\n";
+                message += "━━━━━━━━━━━━━━\n";
+                message += "<b>📦 " + trackingNumber + "</b>\n\n";
+                message += "<b>Name:</b> " + name + "\n";
+
+                if (actualTime) {
+                    message += "<b>Thời gian:</b> " + actualTime + "\n";
+                }
+
+                if (locationName) {
+                    message += "<b>Vị trí:</b> " + locationName;
+                }
 
                 sendTelegramNotificationSP(message);
 
