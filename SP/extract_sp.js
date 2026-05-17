@@ -7,18 +7,21 @@ let cookieStr = headers['Cookie'] || headers['cookie'] || "";
 
 let extractedCookie = "";
 
-// Phân tích Cookie để lấy SPC_F và SPC_ST
+// Phân tích Cookie để lấy SPC_F và SPC_ST (mỗi key chỉ lấy 1 lần)
 if (cookieStr) {
     let cookies = cookieStr.split(';');
-    let parts = [];
+    let spcF = "";
+    let spcST = "";
     for (let c of cookies) {
         let item = c.trim();
-        if (item.startsWith("SPC_F=") || item.startsWith("SPC_ST=")) {
-            parts.push(item);
-            if (parts.length === 2) break; // Đã tìm đủ 2 cookie thì thoát
+        if (!spcF && item.startsWith("SPC_F=")) {
+            spcF = item;
+        } else if (!spcST && item.startsWith("SPC_ST=")) {
+            spcST = item;
         }
+        if (spcF && spcST) break;
     }
-    extractedCookie = parts.join("; ");
+    extractedCookie = [spcF, spcST].filter(Boolean).join("; ");
 }
 
 
